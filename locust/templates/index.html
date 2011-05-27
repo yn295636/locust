@@ -105,7 +105,13 @@
                                 <h1></h1>
                             </div>
                         </div>
-                        <div class="goal response_time">
+                        <div class="goal response_time80">
+                            80% REQUESTS WITHIN <span id="goal_response80_current"></span>
+                            <div class="status">
+                                <h1></h1>
+                            </div>
+                        </div>
+                        <div class="goal response_time95">
                             95% REQUESTS WITHIN <span id="goal_response95_current"></span>
                             <div class="status">
                                 <h1></h1>
@@ -114,7 +120,7 @@
                         <div class="goal total">
                             TEST PASS
                             <div class="status">
-                                <h1>X</h1>
+                                <h1></h1>
                             </div>
                         </div>
                         <div style="clear:left;"></div>
@@ -126,6 +132,10 @@
                             <div style="float:left;">
                                 <label for="goal_fail">Acceptable fail %</label>
                                 <input type="text" name="fail_ratio" id="goal_fail" class="val" style="width:150px;" />
+                            </div>
+                            <div style="float:left; margin-left: 17px;">
+                                <label for="goal_response80" title="80% of the request should finish within this time">80% response time</label>
+                                <input type="text" name="response80" id="goal_response80" class="val" style="width:150px;" />
                             </div>
                             <div style="float:left; margin-left: 17px;">
                                 <label for="goal_response95" title="95% of the request should finish within this time">95% response time</label>

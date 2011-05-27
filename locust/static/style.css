@@ -222,7 +222,7 @@ ul.tabs li a.current {
 .success_goals {}
 .success_goals .status {display: block;}
 .success_goals .settings {
-    width: 338px;
+    width: 516px;
 }
 .success_goals input.set {
     float: right;

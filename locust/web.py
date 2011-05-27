@@ -151,7 +151,9 @@ def request_stats():
         report["state"] = locust_runner.state
         
         # percentile stats
-        report["response_time_percentile_95"] = percentile(total.create_response_times_list(), 0.95)
+        response_time_list = total.create_response_times_list()
+        report["response_time_percentile_80"] = percentile(response_time_list, 0.80)
+        report["response_time_percentile_95"] = percentile(response_time_list, 0.95)
         
         _request_stats_context_cache = {"time": time(), "report": report}
     else:
