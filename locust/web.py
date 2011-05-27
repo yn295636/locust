@@ -4,7 +4,7 @@ import json
 import os.path
 from time import time
 from gevent import wsgi
-from locust.stats import RequestStats
+from locust.stats import RequestStats, percentile
 
 from flask import Flask, make_response, request, render_template
 app = Flask("Locust Monitor")
@@ -119,7 +119,8 @@ def request_stats():
     
     if not _request_stats_context_cache or _request_stats_context_cache["time"] < time() - 2:
         stats = []
-        for s in list(locust_runner.request_stats.itervalues()) + [RequestStats.sum_stats("Total")]:
+        total = RequestStats.sum_stats("Total")
+        for s in list(locust_runner.request_stats.itervalues()) + [total]:
             stats.append({
                 "name": s.name,
                 "num_reqs": s.num_reqs,
@@ -148,6 +149,9 @@ def request_stats():
             report["slave_count"] = len(locust_runner.ready_clients) + len(locust_runner.running_clients)
         
         report["state"] = locust_runner.state
+        
+        # percentile stats
+        report["response_time_percentile_95"] = percentile(total.create_response_times_list(), 0.95)
         
         _request_stats_context_cache = {"time": time(), "report": report}
     else:
