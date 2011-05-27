@@ -50,17 +50,6 @@
                     <input type="text" name="locust_count" id="locust_count" class="val" /><br>
                     <label for="hatch_rate">Hatch rate <span style="color:#8a8a8a;">(users spawned/second)</span></label>
                     <input type="text" name="hatch_rate" id="hatch_rate" class="val" /><br>
-                    
-                    <div style="float:left;">
-                        <label for="fail_ratio">Acceptable fail %</label>
-                        <input type="text" name="fail_ratio" id="fail_ratio" class="val" style="width:150px;" />
-                    </div>
-                    <div style="float:left; margin-left: 17px;">
-                        <label for="fail_ratio" title="95% of the request should finish within this time">95% response time</label>
-                        <input type="text" name="fail_ratio" id="fail_ratio" class="val" style="width:150px;" />
-                    </div>
-                    <div style="clear:left;"></div>
-                    
                     <input type="submit" value="Start swarming" class="start_button">
                 </form>
                 <div style="clear:right;"></div>
@@ -109,25 +98,44 @@
                     </table>
                 </div>
                 <div style="display:none;" class="success_goals">
-                    <div class="goal fail_percent">
-                        FAIL RATIO
-                        <div class="status">
-                            <h1></h1>
+                    <div class="result" style="display:none;">
+                        <div class="goal fail_percent">
+                            MAX FAIL RATIO <span id="goal_fail_current"></span>
+                            <div class="status">
+                                <h1></h1>
+                            </div>
                         </div>
-                    </div>
-                    <div class="goal response_time">
-                        95% REQUESTS WITHIN
-                        <div class="status">
-                            <h1></h1>
+                        <div class="goal response_time">
+                            95% REQUESTS WITHIN <span id="goal_response95_current"></span>
+                            <div class="status">
+                                <h1></h1>
+                            </div>
                         </div>
-                    </div>
-                    <div class="goal total">
-                        TEST PASS
-                        <div class="status">
-                            <h1>X</h1>
+                        <div class="goal total">
+                            TEST PASS
+                            <div class="status">
+                                <h1>X</h1>
+                            </div>
                         </div>
+                        <div style="clear:left;"></div>
+                        <a href="#" id="changeGoals">+ Change Goals</a>
                     </div>
-                    <div style="cler:left;"></div>
+                    
+                    <div class="settings">
+                        <form action="/" method="GET">
+                            <div style="float:left;">
+                                <label for="goal_fail">Acceptable fail %</label>
+                                <input type="text" name="fail_ratio" id="goal_fail" class="val" style="width:150px;" />
+                            </div>
+                            <div style="float:left; margin-left: 17px;">
+                                <label for="goal_response95" title="95% of the request should finish within this time">95% response time</label>
+                                <input type="text" name="response95" id="goal_response95" class="val" style="width:150px;" />
+                            </div>
+                            <div style="clear:left;"></div>
+                            <input type="submit" value="Set Success Goals" class="set" />
+                            <div style="clear:right;"></div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
