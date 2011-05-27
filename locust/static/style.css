@@ -210,3 +210,28 @@ ul.tabs li a.current {
 .panes {
     margin-top: 20px;
 }
+
+/* Success Goals CSS */
+.success_goals {}
+.success_goals h1 {
+    font-size: 36px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+.success_goals .goal {
+    margin-right: 20px;
+    padding-left: 20px;
+    border-left: 1px solid #020;
+    float: left;
+    font-size: 11px;
+}
+.success_goals .goal:first-child {
+    border-left: none;
+    padding-left: 0;
+}
+.success_goals .success {
+    color: #99ff99;
+}
+.success_goals .fail {
+    color: #ff9999;
+}

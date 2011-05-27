@@ -50,6 +50,17 @@
                     <input type="text" name="locust_count" id="locust_count" class="val" /><br>
                     <label for="hatch_rate">Hatch rate <span style="color:#8a8a8a;">(users spawned/second)</span></label>
                     <input type="text" name="hatch_rate" id="hatch_rate" class="val" /><br>
+                    
+                    <div style="float:left;">
+                        <label for="fail_ratio">Acceptable fail %</label>
+                        <input type="text" name="fail_ratio" id="fail_ratio" class="val" style="width:150px;" />
+                    </div>
+                    <div style="float:left; margin-left: 17px;">
+                        <label for="fail_ratio" title="95% of the request should finish within this time">95% response time</label>
+                        <input type="text" name="fail_ratio" id="fail_ratio" class="val" style="width:150px;" />
+                    </div>
+                    <div style="clear:left;"></div>
+                    
                     <input type="image" src="/static/img/start_button.png" value="Start swarming" class="start_button"></td>
                 </form>
                 <div style="clear:right;"></div>
@@ -60,6 +71,7 @@
             <ul class="tabs">
                 <li><a href="#">Statistics</a></li>
                 <li><a href="#">Failures</a></li>
+                <li><a href="#">Success Goals</a></li>
             </ul>
             <div style="clear:left;"></div>
             <div class="panes">
@@ -96,13 +108,35 @@
                         </tbody>
                     </table>
                 </div>
+                <div style="display:none;" class="success_goals">
+                    <div class="goal fail_percent">
+                        FAIL RATIO
+                        <div class="status">
+                            <h1></h1>
+                        </div>
+                    </div>
+                    <div class="goal response_time">
+                        95% REQUESTS WITHIN
+                        <div class="status">
+                            <h1></h1>
+                        </div>
+                    </div>
+                    <div class="goal total">
+                        TEST PASS
+                        <div class="status">
+                            <h1>X</h1>
+                        </div>
+                    </div>
+                    <div style="cler:left;"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script type="text/javascript" src="/static/jquery-1.4.min.js"></script> 
     <script type="text/javascript" src="/static/jquery.jqote2.min.js"></script>
-    <script type="text/javascript" src="/static/jquery.tools.min.js"></script> 
+    <script type="text/javascript" src="/static/jquery.tools.min.js"></script>
+    <script type="text/javascript" src="/static/success-goals.js"></script> 
     <script type="text/x-jqote-template" id="stats-template">
         <![CDATA[
         <tr class="<%=(alternate ? "dark" : "")%>">
@@ -146,6 +180,8 @@
             $("#start").hide();
         });
         
+        SuccessGoals.init();
+        
         var alternate = false;
         
         $("ul.tabs").tabs("div.panes > div");
@@ -185,6 +221,8 @@
                 $('#stats tbody').jqoteapp(stats_tpl, report.stats);
                 alternate = false;
                 $('#errors tbody').jqoteapp(errors_tpl, report.errors);
+                
+                SuccessGoals.updateStats(report);
                 setTimeout(updateStats, 2000);
             });
         }
