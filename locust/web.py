@@ -5,6 +5,7 @@ import os.path
 from time import time
 from gevent import wsgi
 from locust.stats import RequestStats, percentile
+from locust import version
 
 from flask import Flask, make_response, request, render_template
 app = Flask("Locust Monitor")
@@ -23,14 +24,16 @@ def index():
     from core import locust_runner, MasterLocustRunner
     is_distributed = isinstance(locust_runner, MasterLocustRunner)
     if is_distributed:
-        slave_count = len(locust_runner.ready_clients) + len(locust_runner.running_clients)
+        slave_count = locust_runner.slave_count
     else:
         slave_count = 0
     
     return render_template("index.html",
         state=locust_runner.state,
         is_distributed=is_distributed,
-        slave_count=slave_count
+        slave_count=slave_count,
+        user_count=locust_runner.user_count,
+        version=version
     )
 
 @app.route('/swarm', methods=["POST"])
@@ -146,9 +149,10 @@ def request_stats():
         
         is_distributed = isinstance(locust_runner, MasterLocustRunner)
         if is_distributed:
-            report["slave_count"] = len(locust_runner.ready_clients) + len(locust_runner.running_clients)
+            report["slave_count"] = locust_runner.slave_count
         
         report["state"] = locust_runner.state
+        report["user_count"] = locust_runner.user_count
         
         # percentile stats
         response_time_list = total.create_response_times_list()

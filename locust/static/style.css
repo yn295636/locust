@@ -46,6 +46,7 @@ input.val {
 }
 .top .logo {
     float: left;
+    cursor: pointer;
 }
 
 
@@ -142,6 +143,8 @@ input.val {
 .running .status, .hatching .status {display: block;}
 .stopped .status {display: blocked;}
 .ready .status {display: none;}
+
+.stopped .boxes .user_count, .ready .boxes .user_count {display: none;}
 
 .running a.new_test, .ready a.new_test, .hatching a.new_test {display: none;}
 .running a.new_test {display: none;}
@@ -257,4 +260,26 @@ ul.tabs li a.current {
 }
 .success_goals .fail {
     color: #ff9999;
+}
+
+.about {
+    width: 398px;
+    position: absolute;
+    left: 50%;
+    top: 30px;
+    margin-left: -169px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radisu: 5px;
+    border: 3px solid #eee;
+    background: #111717;
+}
+.about a.close_link {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+.about .padder {
+    padding: 30px;
+    padding-top: 0px;
 }
