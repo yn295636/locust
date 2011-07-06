@@ -41,12 +41,23 @@ def log_request(f):
             else:
                 events.request_success.fire(name, response_time, retval)
             return retval
-        except HTTPError, e:
+        except Exception, e:
             response_time = int((time.time() - start) * 1000)
-            events.request_failure.fire(name, response_time, e, response=e.locust_http_response)
-        except (URLError, BadStatusLine, socket.error), e:
-            response_time = int((time.time() - start) * 1000)
-            events.request_failure.fire(name, response_time, e, None)
+            extra = {}
+
+            if isinstance(e, HTTPError):
+                e.msg += " (" + name + ")"
+                extra = {"response": e.locust_http_response}
+            elif isinstance(e, URLError):
+                e.reason += " (" + name + ")"
+            elif isinstance(e, BadStatusLine):
+                e.line += " (" + name + ")"
+            elif isinstance(e, socket.error):
+                pass
+            else:
+                raise
+
+            events.request_failure.fire(name, response_time, e, **extra)
 
         if catch_response:
             return NoneContext()
@@ -202,7 +213,10 @@ class HttpBrowser(object):
             headers["Accept-Encoding"] = "gzip"
         
         if data is not None:
-            data = urllib.urlencode(data)
+            try:
+                data = urllib.urlencode(data)
+            except TypeError:
+                pass # ignore if someone sends in an already prepared string
         
         url = self.base_url + path
         request = urllib2.Request(url, data, headers)
