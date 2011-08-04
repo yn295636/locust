@@ -1,3 +1,4 @@
+import functools
 import gevent
 from gevent import monkey, GreenletExit
 from gevent.pool import Group
@@ -57,7 +58,7 @@ def require_once(required_func):
                 return
                 
             return func(l)
-        return wrapper
+        return functools.update_wrapper(wrapper, func)
     return decorator_func
 
 def task(weight_or_func=1):
@@ -185,6 +186,7 @@ class Locust(object):
         self.execute_task(task["callable"], *task["args"])
     
     def execute_task(self, task, *args):
+        self.last_active_task = task.__name__
         # check if the function is a method bound to the current locust, and if so, don't pass self as first argument
         if hasattr(task, "im_self") and task.im_self == self:
             task(*args)
@@ -535,3 +537,59 @@ class SlaveLocustRunner(DistributedLocustRunner):
                 break
             
             gevent.sleep(1)
+
+
+class TestLocustRunner(object):
+    def __init__(self, locust_classes, host):
+        self.locust_classes = locust_classes
+        self.total_task_count = sum([len(set(locust.tasks)) for locust in locust_classes])
+        self.host = host
+        self.locusts = Group()
+        self.successful_requests = 0
+        self.failed_requests = 0
+        self.failed_tasks = {}
+
+        def request_successful(url, response_time, response):
+            print "OK:", url, response_time, "ms"
+            self.successful_requests += 1
+
+        def request_failure(*args, **kwargs):
+            print "FAILED:", args, kwargs
+            self.failed_requests += 1
+
+        def locust_error(locust, e):
+            print "ERROR:", e
+            self.failed_tasks[locust.last_active_task] = e
+
+        events.request_success += request_successful
+        events.request_failure += request_failure
+        events.locust_error += locust_error
+
+    def start_hatching(self):
+        return gevent.spawn(lambda : self.hatch())
+
+    def hatch(self):
+        def get_next_task():
+            print "----" * 10
+            raise InterruptLocust(reschedule=False)
+
+        print "Starting to test %d tasks." % self.total_task_count
+        for locust_class in self.locust_classes:
+            locust_class.host = self.host
+            locust_class.min_wait = 0
+            locust_class.max_wait = 0
+            print "Testing tasks for locust %s" % locust_class.__name__
+            for task in set(locust_class.tasks):
+                print "Executing task:", task.__name__
+                locust = locust_class()
+                locust._task_queue = []
+                locust.schedule_task(task)
+                locust.get_next_task = get_next_task
+                locust()
+                
+        print "Test completed."
+        print "%d successful requests, %d failed requests" % (self.successful_requests, self.failed_requests)
+        print "Failed %d/%d tasks" % (len(self.failed_tasks), self.total_task_count)
+
+        for task, e in self.failed_tasks.iteritems():
+            print task, "->", e

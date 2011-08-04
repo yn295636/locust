@@ -1,6 +1,6 @@
 import locust
 import core
-from core import Locust, WebLocust, MasterLocustRunner, SlaveLocustRunner, LocalLocustRunner
+from core import Locust, WebLocust, MasterLocustRunner, SlaveLocustRunner, LocalLocustRunner, TestLocustRunner
 from stats import print_stats
 import web
 import inspectlocust
@@ -118,6 +118,15 @@ def parse_options():
         dest='slave',
         default=False,
         help="Set locust to run in distributed mode with this process as slave"
+    )
+
+    # if locust should be run in test mode
+    parser.add_option(
+        '-t', '--test',
+        action='store_true',
+        dest='test',
+        default=False,
+        help="Set locust to run in test mode"
     )
 
     # Number of requests
@@ -327,7 +336,10 @@ def main():
     # enable/disable gzip in WebLocust's HTTP client
     WebLocust.gzip = options.gzip
 
-    if not options.master and not options.slave:
+    if options.test:
+        core.locust_runner = TestLocustRunner(locust_classes, options.host)
+        main_greenlet = core.locust_runner.start_hatching()
+    elif not options.master and not options.slave:
         core.locust_runner = LocalLocustRunner(locust_classes, options.hatch_rate, options.num_clients, options.num_requests, options.host)
         # spawn client spawning/hatching greenlet
         if not options.web:
@@ -339,7 +351,7 @@ def main():
         core.locust_runner = SlaveLocustRunner(locust_classes, options.hatch_rate, options.num_clients, num_requests=options.num_requests, host=options.host, master_host=options.master_host)
         main_greenlet = core.locust_runner.greenlet
     
-    if options.print_stats or (not options.web and not options.slave):
+    if not options.test and (options.print_stats or (not options.web and not options.slave)):
         # spawn stats printing greenlet
         gevent.spawn(stats_printer)
     

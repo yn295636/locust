@@ -5,3 +5,4 @@ docs/_build/**
 .idea/**
 *.iml
 *.ipr
+build/**
