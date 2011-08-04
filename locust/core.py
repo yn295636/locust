@@ -544,7 +544,6 @@ class TestLocustRunner(object):
         self.locust_classes = locust_classes
         self.total_task_count = sum([len(set(locust.tasks)) for locust in locust_classes])
         self.host = host
-        self.locusts = Group()
         self.successful_requests = 0
         self.failed_requests = 0
         self.failed_tasks = {}
@@ -582,7 +581,6 @@ class TestLocustRunner(object):
             for task in set(locust_class.tasks):
                 print "Executing task:", task.__name__
                 locust = locust_class()
-                locust._task_queue = []
                 locust.schedule_task(task)
                 locust.get_next_task = get_next_task
                 locust()
@@ -591,5 +589,10 @@ class TestLocustRunner(object):
         print "%d successful requests, %d failed requests" % (self.successful_requests, self.failed_requests)
         print "Failed %d/%d tasks" % (len(self.failed_tasks), self.total_task_count)
 
+        print ""
+        print "Errors:"
         for task, e in self.failed_tasks.iteritems():
-            print task, "->", e
+            print "----" * 10
+            print task
+            print "----" * 10
+            print repr(e)
