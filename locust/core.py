@@ -546,19 +546,20 @@ class TestLocustRunner(object):
         self.host = host
         self.successful_requests = 0
         self.failed_requests = 0
-        self.failed_tasks = {}
+        self.failed_tasks = []
 
         def request_successful(url, response_time, response):
             print "OK:", url, response_time, "ms"
             self.successful_requests += 1
 
-        def request_failure(*args, **kwargs):
-            print "FAILED:", args, kwargs
+        def request_failure(url, response_time, e, **kwargs):
+            print "FAILED:", url, response_time, "ms"
+            print "HTTP CODE:", kwargs['response'].code
             self.failed_requests += 1
 
         def locust_error(locust, e):
-            print "ERROR:", e
-            self.failed_tasks[locust.last_active_task] = e
+            print "ERROR:", repr(e)
+            self.failed_tasks.append((locust.last_active_task, e))
 
         events.request_success += request_successful
         events.request_failure += request_failure
@@ -579,7 +580,8 @@ class TestLocustRunner(object):
             locust_class.max_wait = 0
             print "Testing tasks for locust %s" % locust_class.__name__
             for task in set(locust_class.tasks):
-                print "Executing task:", task.__name__
+                print "TASK:", task.__name__
+                print "----" * 10
                 locust = locust_class()
                 locust.schedule_task(task)
                 locust.get_next_task = get_next_task
@@ -591,8 +593,8 @@ class TestLocustRunner(object):
 
         print ""
         print "Errors:"
-        for task, e in self.failed_tasks.iteritems():
+        for task, e in self.failed_tasks:
             print "----" * 10
-            print task
+            print "TASK:", task
             print "----" * 10
             print repr(e)
