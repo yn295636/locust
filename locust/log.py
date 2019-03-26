@@ -8,10 +8,18 @@ def setup_logging(loglevel, logfile):
     numeric_level = getattr(logging, loglevel.upper(), None)
     if numeric_level is None:
         raise ValueError("Invalid log level: %s" % loglevel)
-    
+
     log_format = "[%(asctime)s] {0}/%(levelname)s/%(name)s: %(message)s".format(host)
-    logging.basicConfig(level=numeric_level, filename=logfile, format=log_format)
-    
+    formatter = logging.Formatter(fmt=log_format)
+    file_handler = logging.FileHandler(logfile)
+    stream_handler = logging.StreamHandler()
+    file_handler.setFormatter(formatter)
+    stream_handler.setFormatter(formatter)
+    logging.basicConfig(level=numeric_level, handlers=[
+        file_handler,
+        stream_handler
+    ])
+
     sys.stderr = StdErrWrapper()
     sys.stdout = StdOutWrapper()
 
